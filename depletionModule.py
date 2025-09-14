@@ -20,15 +20,15 @@ unit = N_A*1E-24 # Unit Conversion (atom.cm^2/mol.barn)
 ## Classes
 # ------------------------------------------------------------------------------
 class Isotope:
-    def __init__(self, A:int, Z:int, N=0, sigma_ny=0, decayConst=0, daughters=[], products=[]):
+    def __init__(self, A:int, Z:int, N=0, sigma_ny=0, decayConst=0):
         self.A = A # Mass Number
         self.Z = Z # Atomic Number
         self.N = N # Number density of isotope [mols/cm^-3]
         self.zaid = Z*1000 + A # zaid (ZZZAAA)
         self.sigma_ny = sigma_ny # transmutation (n,gamma) cross-section [barns]
         self.decayConst = decayConst # decay constant [s^-1]
-        self.daughters = daughters # Decay Daughters
-        self.products = products 
+        self.daughters = [] # Decay Daughters
+        self.products = []
 
     def __str__(self):
         return f"{self.N}"
@@ -65,8 +65,8 @@ class Series:
 
     def buildMat(self, phi):
         n = len(self.isotopes) # number of isotopes in series
-        A = np.zeros(n, n)
-        N_0 = np.zeros(n)
+        A = np.zeros((n, n), dtype=float)
+        N_0 = np.zeros(n, dtype=float)
         i = 0
         for isotope in self.isotopes:
             thisLambda = isotope.decayConst

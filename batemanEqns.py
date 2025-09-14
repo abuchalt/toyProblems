@@ -13,7 +13,7 @@ import sys
 
 # myLambda = 10*np.log(2)
 myLambda = 1
-N = 30
+N = 5
 
 A = myLambda*np.eye(N, N, -1) - myLambda*np.eye(N, N, 0)
 A[N-1,N-1]=0
@@ -47,7 +47,7 @@ def myt(myLambda, k):
     return np.power(math.factorial(k-1),1/(k-1))/myLambda
 
 N1_0 = 1
-myTime = np.linspace(0, 50, num=1000)
+myTime = np.linspace(0, 10, num=1000)
 
 for myk in range(1,N+1):
     plt.plot(myTime, N1_0*Nk(myTime, myLambda, myk))

@@ -10,19 +10,24 @@
 import numpy as np
 from scipy import linalg
 import depletionModule as dm
+import matplotlib.pyplot as plt
 # ------------------------------------------------------------------------------
 
 ## Computational Parameters
 # ------------------------------------------------------------------------------
-phi = 1E14 # neutron flux [cm^-2.s^-1]
+phi = 1 # neutron flux [cm^-2.s^-1]
 
 A1 = dm.Isotope(1, 1, 1, 0, 1)
-A2 = dm.Isotope(1, 1, 0, 0, 1)
-A3 = dm.Isotope(1, 1, 0, 0, 0)
+A2 = dm.Isotope(2, 2, 0, 0, 1)
+A3 = dm.Isotope(3, 3, 0, 0, 1)
+A4 = dm.Isotope(4, 4, 0, 0, 1)
+A5 = dm.Isotope(5, 5, 0, 0, 0)
 A1.addDaughter(A2, 1)
 A2.addDaughter(A3, 1)
+A3.addDaughter(A4, 1)
+A4.addDaughter(A5, 1)
 
-isotopeList = [A1, A2, A3]
+isotopeList = [A1, A2, A3, A4, A5]
 
 mySeries = dm.Series('mySeries', isotopeList)
 # ------------------------------------------------------------------------------
@@ -32,58 +37,42 @@ mySeries = dm.Series('mySeries', isotopeList)
 
 # Computation Parameters
 # ----------------------------------------------------------------------
-stopIrrad = 3*60*60*24 # Irradiate 3 days
-timeStop = stopIrrad*2
-deltaTime = timeStop/1e5
+timeStop = 10 # [s]
+deltaTime = timeStop/1e4 # [s]
 timeDomain = np.arange(0, timeStop, deltaTime)
-timeDomainPlot = timeDomain/(60*60*24) # time in days
-flux = 1e11
-stopIndex = np.where(timeDomain>stopIrrad)[0][0]
-fluxArray = np.zeros(len(timeDomain))
-fluxArray[0:stopIndex] = flux
 
 # Simulation Begin
 # ----------------------------------------------------------------------
 
 # Init
-massH1 = []
-massC12 = []
-massCl35 = []
-massCl37 = []
-activityH3 = []
-activityC14 = []
-activityCl36 = []
-activityCl38 = []
-totalActivityArray = []
+NA1 = [A1.N]
+NA2 = [A2.N]
+NA3 = [A3.N]
+NA4 = [A4.N]
+NA5 = [A5.N]
 
 # Loop thru time
-for i in range(len(timeDomain)):
-    massH1.append(H1.N)
-    massC12.append(C12.N)
-    massCl35.append(Cl35.N)
-    massCl37.append(Cl37.N)
-    activityH3.append(H3.getActivity())
-    activityC14.append(C14.getActivity())
-    activityCl36.append(Cl36.getActivity())
-    activityCl38.append(Cl38.getActivity())
-    totalActivity = 0
-    for item in isotopeList:
-        totalActivity += item.getActivity()
-        item.timeStep(deltaTime, fluxArray[i])
-    totalActivityArray.append(totalActivity)
+for i in range(len(timeDomain)-1):
+    N_Δt = mySeries.timeStep(deltaTime, phi)
+    NA1.append(N_Δt[0])
+    NA2.append(N_Δt[1])
+    NA3.append(N_Δt[2])
+    NA4.append(N_Δt[3])
+    NA5.append(N_Δt[4])
 
 # Plotting
 # ----------------------------------------------------------------------
 
 # Isotopic Concentrations
-plt.plot(timeDomainPlot, massH1, label='Hydrogen-1')
-plt.plot(timeDomainPlot, massC12, label='Carbon-12')
-plt.plot(timeDomainPlot, massCl35, label='Chlorine-35')
-plt.plot(timeDomainPlot, massCl37, label='Chlorine-37')
-plt.xlabel('Time (days)')
-plt.ylabel('Isotopic Abundance (mols)')
-plt.title('Irradiation of 1-mol Sample of PVC')
+plt.plot(timeDomain, NA1, label='NA1')
+plt.plot(timeDomain, NA2, label='NA2')
+plt.plot(timeDomain, NA3, label='NA3')
+plt.plot(timeDomain, NA4, label='NA3')
+plt.plot(timeDomain, NA5, label='NA3')
+plt.xlabel('Time (s)')
+plt.ylabel('Isotopic Abundance (mols/cc)')
+plt.title('Bateman Problem')
 plt.legend()
-plt.savefig('IsotopicConcentrations.png')
+plt.savefig('results//IsotopicConcentrations.png')
 plt.show()
 plt.close()
