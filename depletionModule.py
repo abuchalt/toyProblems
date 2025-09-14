@@ -20,7 +20,7 @@ unit = N_A*1E-24 # Unit Conversion (atom.cm^2/mol.barn)
 ## Classes
 # ------------------------------------------------------------------------------
 class Isotope:
-    def __init__(self, A:int, Z:int, N=0, sigma_ny=0, decayConst=0):
+    def __init__(self, A:int, Z:int, N:float=0.0, sigma_ny=0, decayConst=0):
         self.A = A # Mass Number
         self.Z = Z # Atomic Number
         self.N = N # Number density of isotope [mols/cm^-3]
