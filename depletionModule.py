@@ -14,7 +14,7 @@ from scipy import linalg
 ## Global Vars
 # ------------------------------------------------------------------------------
 N_A = 6.022e23 # Avogadro's Number (mol^-1)
-unit = N_A*1E-24 # Unit Conversion (atom.cm^2/mol.barn)
+unit = 1E-24 # Unit Conversion (cm^2/barn)
 # ------------------------------------------------------------------------------
 
 ## Classes
@@ -34,6 +34,9 @@ class Isotope:
 
     def __str__(self):
         return f"{self.N}"
+    
+    def getZaid(self):
+        return f"{self.zaid}"
     
     def addDaughter(self, daughter:"Isotope", fraction:float):
         self.daughters.append((daughter, fraction))
@@ -79,7 +82,7 @@ class Series:
             thisFSigma = isotope.sigma_f
             thisN = isotope.N
             N_0[i] = thisN
-            A[i, i] += - thisLambda - phi*(thisSigma + thisFSigma)*thisN*unit
+            A[i, i] += - thisLambda - phi*(thisSigma + thisFSigma)*unit
             for daughter in isotope.daughters:
                 # daughterzaid = daughter[0].zaid
                 fraction = daughter[1]
@@ -89,11 +92,11 @@ class Series:
                 # daughterzaid = daughter[0].zaid
                 fraction = product[1]
                 j = self.isotopes.index(product[0])
-                A[j, i] += fraction*phi*thisSigma*thisN*unit
+                A[j, i] += fraction*phi*thisSigma*unit
             for fproduct in isotope.fproducts:
                 fraction = fproduct[1]
                 j = self.isotopes.index(fproduct[0])
-                A[j, i] += fraction*phi*thisFSigma*thisN*unit
+                A[j, i] += fraction*phi*thisFSigma*unit
             i += 1
         return A, N_0
 
