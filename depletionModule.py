@@ -20,15 +20,17 @@ unit = N_A*1E-24 # Unit Conversion (atom.cm^2/mol.barn)
 ## Classes
 # ------------------------------------------------------------------------------
 class Isotope:
-    def __init__(self, A:int, Z:int, N:float=0.0, sigma_ny=0, decayConst=0):
+    def __init__(self, A:int, Z:int, N:float=0.0, sigma_ny=0.0, decayConst=0.0, sigma_f=0.0):
         self.A = A # Mass Number
         self.Z = Z # Atomic Number
         self.N = N # Number density of isotope [mols/cm^-3]
         self.zaid = Z*1000 + A # zaid (ZZZAAA)
         self.sigma_ny = sigma_ny # transmutation (n,gamma) cross-section [barns]
+        self.sigma_f = sigma_f
         self.decayConst = decayConst # decay constant [s^-1]
         self.daughters = [] # Decay Daughters
-        self.products = []
+        self.products = [] # n,gamma Products
+        self.fproducts = [] # fission Products
 
     def __str__(self):
         return f"{self.N}"
@@ -38,6 +40,9 @@ class Isotope:
     
     def addProduct(self, product:"Isotope", fraction:float):
         self.products.append((product, fraction))
+
+    def addFProduct(self, product:"Isotope", fraction:float):
+        self.fproducts.append((product, fraction))
 
     def timeStep(self, deltaT=1, flux=0):
         # Neutron Absorption
@@ -71,9 +76,10 @@ class Series:
         for isotope in self.isotopes:
             thisLambda = isotope.decayConst
             thisSigma = isotope.sigma_ny
+            thisFSigma = isotope.sigma_f
             thisN = isotope.N
             N_0[i] = thisN
-            A[i, i] += - thisLambda - phi*thisSigma*thisN*unit
+            A[i, i] += - thisLambda - phi*(thisSigma + thisFSigma)*thisN*unit
             for daughter in isotope.daughters:
                 # daughterzaid = daughter[0].zaid
                 fraction = daughter[1]
@@ -84,6 +90,10 @@ class Series:
                 fraction = product[1]
                 j = self.isotopes.index(product[0])
                 A[j, i] += fraction*phi*thisSigma*thisN*unit
+            for fproduct in isotope.fproducts:
+                fraction = fproduct[1]
+                j = self.isotopes.index(fproduct[0])
+                A[j, i] += fraction*phi*thisFSigma*thisN*unit
             i += 1
         return A, N_0
 

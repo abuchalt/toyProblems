@@ -49,13 +49,15 @@ Enrichment = 0.05
 M_UO2 = 238.03 # [g/mol]
 ρ_UO2 = 10.97 # [g/cc]
 N_UO2 = ρ_UO2/M_UO2 # [mol/cc]
-sigma_nyU235 = 1 # [barns]
-λ_U235 = 1 # [s^-1]
-sigma_nyU238 = 1 # [barns]
-λ_U238 = 1 # [s^-1]
+sigma_nyU235 = 0.08741 # [barns] JAEA https://wwwndc.jaea.go.jp/cgi-bin/Tab80WWW.cgi?lib=J40&iso=U235
+sigma_fU235 = 1.218 # [barns] JAEA
+λ_U235 = np.log(2)/(7.040E8*3.154E7) # [s^-1]
+sigma_nyU238 = 0.07016 # [barns] JAEA
+sigma_fU238 = 0.3064 # [barns] JAEA
+λ_U238 = np.log(2)/(4.463E9*3.154E7) # [s^-1]
 
-U235 = dm.Isotope(235, 92, N_UO2*Enrichment, sigma_nyU235, λ_U235)
-U238 = dm.Isotope(238, 92, N_UO2*(1-Enrichment), sigma_nyU238, λ_U238)
+U235 = dm.Isotope(235, 92, N_UO2*Enrichment, sigma_nyU235, λ_U235, sigma_fU235)
+U238 = dm.Isotope(238, 92, N_UO2*(1-Enrichment), sigma_nyU238, λ_U238, sigma_fU238)
 
 # Test Sim
 # ----------------------------------------------------------------------
